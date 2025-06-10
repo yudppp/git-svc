@@ -89,6 +89,10 @@ func List(root string) (map[string]string, error) {
 	m := make(map[string]string)
 	err = filepath.WalkDir(repoRoot, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
+			if os.IsPermission(err) {
+				// Ignore permission errors and continue walking
+				return nil
+			}
 			return err
 		}
 		if d.Type()&os.ModeSymlink == 0 {
