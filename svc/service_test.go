@@ -59,12 +59,9 @@ func TestInitPullCleanList(t *testing.T) {
 		t.Fatalf("backup not created: %v", err)
 	}
 
-	entries, err := os.ReadDir(filepath.Join(repo, ".worktrees", "feature", "packages"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(entries) != 1 || entries[0].Name() != "a" {
-		t.Fatalf("sparse checkout not applied: %v", entries)
+	expectedFilePath := filepath.Join(repo, ".worktrees", "feature", "packages", "a", "file.txt")
+	if _, err := os.Stat(expectedFilePath); os.IsNotExist(err) {
+		t.Fatalf("expected file %s to exist in worktree, but it does not: %v", expectedFilePath, err)
 	}
 
 	m, err := List(".worktrees")
