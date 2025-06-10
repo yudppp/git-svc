@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/yudppp/go-svc/svc"
+       "github.com/yudppp/git-svc/svc"
 )
 
 var listCmd = &cobra.Command{

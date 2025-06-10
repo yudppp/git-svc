@@ -1,6 +1,6 @@
 package main
 
-import "github.com/yudppp/go-svc/cmd"
+import "github.com/yudppp/git-svc/cmd"
 
 func main() {
 	cmd.Execute()

@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/yudppp/go-svc/svc"
+       "github.com/yudppp/git-svc/svc"
 )
 
 var initCmd = &cobra.Command{
