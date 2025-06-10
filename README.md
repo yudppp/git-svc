@@ -1,9 +1,12 @@
 # git-svc
 
 git-svc is a small CLI tool that wraps `git worktree` operations and
-creates symlinks for local development. It allows you to check out
-branches into a separate directory and link service directories so that
-existing tools (like `docker-compose`) keep working without changes.
+creates symlinks for local development. Worktrees are added with
+`git worktree add --no-checkout` and then configured using
+`git sparse-checkout` so that only the specified directory is
+checked out. This keeps worktrees lightweight while
+ensuring existing tools (like `docker-compose`) keep working without
+changes.
 
 ## Installation
 
@@ -15,6 +18,7 @@ go install github.com/yudppp/git-svc@latest
 
 ```
 # add worktree for branch feature and link packages/a
+# only packages/a will be checked out using git sparse-checkout
 git svc init packages/a feature
 
 # pull latest changes for the worktree linked from packages/a
@@ -50,10 +54,13 @@ Example:
 ```bash
 $ GITSVC_WORKTREE_ROOT=_trees git svc init packages/b other-branch
 ```
+Only `packages/b` will exist in the created worktree thanks to
+`git worktree add --no-checkout` and `git sparse-checkout`.
 
 ### Typical workflow
 
-1. Initialize a branch-specific worktree linked to your service:
+1. Initialize a branch-specific worktree linked to your service
+   (only that directory will be checked out):
    ```bash
    git svc init packages/a feature
    ```

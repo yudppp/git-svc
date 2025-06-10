@@ -25,7 +25,16 @@ func Init(dir, branch, root string) error {
 		return err
 	}
 	worktreePath := filepath.Join(repoRoot, root, branch)
-	if err := runCmd(repoRoot, "git", "worktree", "add", worktreePath, branch); err != nil {
+	if err := runCmd(repoRoot, "git", "worktree", "add", "--no-checkout", worktreePath, branch); err != nil {
+		return err
+	}
+	if err := runCmd(worktreePath, "git", "sparse-checkout", "init", "--cone"); err != nil {
+		return err
+	}
+	if err := runCmd(worktreePath, "git", "sparse-checkout", "set", dir); err != nil {
+		return err
+	}
+	if err := runCmd(worktreePath, "git", "reset", "--hard", "HEAD"); err != nil {
 		return err
 	}
 	target := filepath.Join(worktreePath, dir)
