@@ -48,7 +48,7 @@ func TestInitPullCleanList(t *testing.T) {
 	os.Chdir(repo)
 	defer os.Chdir(cwd)
 
-	if err := Init("packages/a", "feature", ".worktrees"); err != nil {
+	if err := Init("packages/a", "feature", "", ".worktrees", false); err != nil {
 		t.Fatal(err)
 	}
 
@@ -84,5 +84,49 @@ func TestInitPullCleanList(t *testing.T) {
 	}
 	if _, err := os.Stat("packages/a" + backupSuffix); !os.IsNotExist(err) {
 		t.Fatalf("backup still exists")
+	}
+}
+
+func TestInitNewBranchFromBase(t *testing.T) {
+	repo := t.TempDir()
+	if err := runCmd(repo, "git", "init"); err != nil {
+		t.Fatal(err)
+	}
+	remote := filepath.Join(repo, "remote.git")
+	if err := runCmd("", "git", "init", "--bare", remote); err != nil {
+		t.Fatal(err)
+	}
+	if err := runCmd(repo, "git", "remote", "add", "origin", remote); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(repo, "packages/a"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(repo, "packages/a/file.txt"), []byte("hello"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := runCmd(repo, "git", "add", "."); err != nil {
+		t.Fatal(err)
+	}
+	if err := runCmd(repo, "git", "commit", "-m", "init"); err != nil {
+		t.Fatal(err)
+	}
+	if err := runCmd(repo, "git", "push", "-u", "origin", "master"); err != nil {
+		t.Fatal(err)
+	}
+
+	cwd, _ := os.Getwd()
+	os.Chdir(repo)
+	defer os.Chdir(cwd)
+
+	if err := Init("packages/a", "feat-a", "origin/master", ".worktrees", true); err != nil {
+		t.Fatal(err)
+	}
+
+	if fi, err := os.Lstat("packages/a"); err != nil || fi.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("expected symlink: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(repo, ".worktrees", "feat-a", "packages", "a", "file.txt")); err != nil {
+		t.Fatalf("worktree file missing: %v", err)
 	}
 }
