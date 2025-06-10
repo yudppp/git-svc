@@ -18,6 +18,9 @@ go install github.com/yudppp/git-svc@latest
 # add worktree for an existing branch and link packages/a
 git svc init packages/a feature
 
+# only checkout packages/a using sparse checkout
+git svc init --sparse packages/a feature
+
 # create a new branch from origin/main and link packages/a
 git svc init packages/a -b feat-a origin/main
 
@@ -52,16 +55,16 @@ Set a custom worktree root with the `--worktree-root` flag or the
 Example:
 
 ```bash
-$ GITSVC_WORKTREE_ROOT=_trees git svc init packages/b other-branch
+$ GITSVC_WORKTREE_ROOT=_trees git svc init --sparse packages/b other-branch
 ```
 This creates a worktree under `_trees/other-branch` and links
-`packages/b` to it.
+`packages/b` to it while only checking out that directory.
 
 ### Typical workflow
 
 1. Initialize a branch-specific worktree linked to your service:
    ```bash
-   git svc init packages/a -b feature
+   git svc init --sparse packages/a -b feature
    ```
 2. Keep the worktree up to date:
    ```bash

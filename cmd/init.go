@@ -8,6 +8,7 @@ import (
 )
 
 var branchFlag string
+var sparseFlag bool
 
 var initCmd = &cobra.Command{
 	Use:   "init <dir> [base]",
@@ -20,16 +21,17 @@ var initCmd = &cobra.Command{
 			if len(args) == 2 {
 				base = args[1]
 			}
-			return svc.Init(dir, branchFlag, base, worktreeRoot, true)
+			return svc.Init(dir, branchFlag, base, worktreeRoot, true, sparseFlag)
 		}
 		if len(args) < 2 {
 			return fmt.Errorf("branch required")
 		}
-		return svc.Init(dir, args[1], "", worktreeRoot, false)
+		return svc.Init(dir, args[1], "", worktreeRoot, false, sparseFlag)
 	},
 }
 
 func init() {
 	initCmd.Flags().StringVarP(&branchFlag, "branch", "b", "", "create new branch")
+	initCmd.Flags().BoolVar(&sparseFlag, "sparse", false, "use git sparse-checkout")
 	rootCmd.AddCommand(initCmd)
 }

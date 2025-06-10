@@ -23,13 +23,16 @@ func RepoRoot() (string, error) {
 // Init adds a worktree for the branch and links the directory to it.
 // If create is true, a new branch is created with `-b branch` and optionally
 // based on the provided base commitish.
-func Init(dir, branch, base, root string, create bool) error {
+func Init(dir, branch, base, root string, create, sparse bool) error {
 	repoRoot, err := RepoRoot()
 	if err != nil {
 		return err
 	}
 	worktreePath := filepath.Join(repoRoot, root, branch)
 	args := []string{"git", "worktree", "add"}
+	if sparse {
+		args = append(args, "--no-checkout")
+	}
 	if create {
 		args = append(args, "-b", branch, worktreePath)
 		if base != "" {
@@ -40,6 +43,17 @@ func Init(dir, branch, base, root string, create bool) error {
 	}
 	if err := runCmd(repoRoot, args[0], args[1:]...); err != nil {
 		return err
+	}
+	if sparse {
+		if err := runCmd(worktreePath, "git", "sparse-checkout", "init", "--cone"); err != nil {
+			return err
+		}
+		if err := runCmd(worktreePath, "git", "sparse-checkout", "set", dir); err != nil {
+			return err
+		}
+		if err := runCmd(worktreePath, "git", "reset", "--hard", "HEAD"); err != nil {
+			return err
+		}
 	}
 	target := filepath.Join(worktreePath, dir)
 	link := filepath.Join(repoRoot, dir)
