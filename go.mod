@@ -1,4 +1,4 @@
-module git-svc
+module github.com/yudppp/go-svc
 
 go 1.23.8
 

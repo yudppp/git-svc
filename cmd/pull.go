@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"git-svc/svc"
 	"github.com/spf13/cobra"
+	"github.com/yudppp/go-svc/svc"
 )
 
 var pullCmd = &cobra.Command{

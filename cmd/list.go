@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"git-svc/svc"
 	"github.com/spf13/cobra"
+	"github.com/yudppp/go-svc/svc"
 )
 
 var listCmd = &cobra.Command{
