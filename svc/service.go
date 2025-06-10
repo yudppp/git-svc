@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+const backupSuffix = ".gitsvc_backup"
+
 // RepoRoot returns the absolute path of the repository root.
 func RepoRoot() (string, error) {
 	out, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
@@ -39,7 +41,23 @@ func Init(dir, branch, root string) error {
 	}
 	target := filepath.Join(worktreePath, dir)
 	link := filepath.Join(repoRoot, dir)
-	if err := os.RemoveAll(link); err != nil {
+	if fi, err := os.Lstat(link); err == nil {
+		if fi.Mode()&os.ModeSymlink != 0 {
+			if err := os.Remove(link); err != nil {
+				return err
+			}
+		} else {
+			backup := link + backupSuffix
+			if _, err := os.Stat(backup); err == nil {
+				return fmt.Errorf("backup already exists: %s", backup)
+			} else if !os.IsNotExist(err) {
+				return err
+			}
+			if err := os.Rename(link, backup); err != nil {
+				return err
+			}
+		}
+	} else if !os.IsNotExist(err) {
 		return err
 	}
 	rel, err := filepath.Rel(filepath.Dir(link), target)
@@ -69,7 +87,8 @@ func Clean(dir, root string) error {
 	if err != nil {
 		return err
 	}
-	branch, err := branchFromLink(filepath.Join(repoRoot, dir))
+	link := filepath.Join(repoRoot, dir)
+	branch, err := branchFromLink(link)
 	if err != nil {
 		return err
 	}
@@ -77,7 +96,16 @@ func Clean(dir, root string) error {
 	if err := runCmd(repoRoot, "git", "worktree", "remove", worktreePath); err != nil {
 		return err
 	}
-	return os.Remove(filepath.Join(repoRoot, dir))
+	if err := os.Remove(link); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	backup := link + backupSuffix
+	if _, err := os.Stat(backup); err == nil {
+		if err := os.Rename(backup, link); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // List returns map of dir -> branch.

@@ -52,6 +52,13 @@ func TestInitPullCleanList(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	if fi, err := os.Lstat("packages/a"); err != nil || fi.Mode()&os.ModeSymlink == 0 {
+		t.Fatalf("expected symlink at packages/a: %v", err)
+	}
+	if _, err := os.Stat("packages/a" + backupSuffix); err != nil {
+		t.Fatalf("backup not created: %v", err)
+	}
+
 	entries, err := os.ReadDir(filepath.Join(repo, ".worktrees", "feature", "packages"))
 	if err != nil {
 		t.Fatal(err)
@@ -76,7 +83,10 @@ func TestInitPullCleanList(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if _, err := os.Lstat("packages/a"); !os.IsNotExist(err) {
-		t.Fatalf("symlink not removed: %v", err)
+	if fi, err := os.Lstat("packages/a"); err != nil || fi.Mode()&os.ModeSymlink != 0 {
+		t.Fatalf("directory not restored: %v", err)
+	}
+	if _, err := os.Stat("packages/a" + backupSuffix); !os.IsNotExist(err) {
+		t.Fatalf("backup still exists")
 	}
 }
