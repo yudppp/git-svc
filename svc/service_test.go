@@ -52,6 +52,14 @@ func TestInitPullCleanList(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	entries, err := os.ReadDir(filepath.Join(repo, ".worktrees", "feature", "packages"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) != 1 || entries[0].Name() != "a" {
+		t.Fatalf("sparse checkout not applied: %v", entries)
+	}
+
 	m, err := List(".worktrees")
 	if err != nil {
 		t.Fatal(err)
