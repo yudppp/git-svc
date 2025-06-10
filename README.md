@@ -8,7 +8,7 @@ existing tools (like `docker-compose`) keep working without changes.
 ## Installation
 
 ```
-go install ./...
+go install github.com/yudppp/go-svc@latest
 ```
 
 ## Usage
@@ -25,6 +25,18 @@ git svc clean packages/a
 
 # list managed symlinks
 git svc list
+```
+
+## Using as a library
+
+Fetch the module with `go get` and import the `svc` package:
+
+```bash
+go get github.com/yudppp/go-svc
+```
+
+```go
+import "github.com/yudppp/go-svc/svc"
 ```
 
 ## Configuration
