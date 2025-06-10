@@ -15,8 +15,11 @@ go install github.com/yudppp/git-svc@latest
 ## Usage
 
 ```
-# add worktree for branch feature and link packages/a
+# add worktree for an existing branch and link packages/a
 git svc init packages/a feature
+
+# create a new branch from origin/main and link packages/a
+git svc init packages/a -b feat-a origin/main
 
 # pull latest changes for the worktree linked from packages/a
 git svc pull packages/a
@@ -58,7 +61,7 @@ This creates a worktree under `_trees/other-branch` and links
 
 1. Initialize a branch-specific worktree linked to your service:
    ```bash
-   git svc init packages/a feature
+   git svc init packages/a -b feature
    ```
 2. Keep the worktree up to date:
    ```bash
