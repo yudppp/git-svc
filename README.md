@@ -1,1 +1,65 @@
 # git-svc
+
+git-svc is a small CLI tool that wraps `git worktree` operations and
+creates symlinks for local development. It allows you to check out
+branches into a separate directory and link service directories so that
+existing tools (like `docker-compose`) keep working without changes.
+
+## Installation
+
+```
+go install ./...
+```
+
+## Usage
+
+```
+# add worktree for branch feature and link packages/a
+git svc init packages/a feature
+
+# pull latest changes for the worktree linked from packages/a
+git svc pull packages/a
+
+# remove the worktree and symlink
+git svc clean packages/a
+
+# list managed symlinks
+git svc list
+```
+
+## Configuration
+
+Set a custom worktree root with the `--worktree-root` flag or the
+`GITSVC_WORKTREE_ROOT` environment variable. Worktrees are created under
+`.worktrees` by default.
+
+Example:
+
+```bash
+$ GITSVC_WORKTREE_ROOT=_trees git svc init packages/b other-branch
+```
+
+### Typical workflow
+
+1. Initialize a branch-specific worktree linked to your service:
+   ```bash
+   git svc init packages/a feature
+   ```
+2. Keep the worktree up to date:
+   ```bash
+   git svc pull packages/a
+   ```
+3. Remove the symlink and worktree when the branch is merged or no longer needed:
+   ```bash
+   git svc clean packages/a
+   ```
+4. List active links and their branches:
+   ```bash
+   git svc list
+   ```
+
+### Windows notes
+
+Creating symlinks on Windows requires Administrator privileges or using
+WSL. If `git svc init` fails with a permission error, try running the
+command prompt as Administrator or perform the operation inside WSL.
